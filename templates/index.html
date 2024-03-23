@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug and Medicine Related Search Engine</title>
+<style>
+         body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            padding: 5px;
+            width: 300px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        h2 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        ol {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        li {
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .read-more {
+            display: block;
+            margin-top: 10px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        .full-document {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drug and Medicine Related Search Engine</h1>
+    <form method="post" action="/">
+        <label for="query">Enter your query:</label>
+        <input type="text" name="query" id="query" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if suggestion %}
+    <p>Did you mean?: <strong>{{ corrected_query }}</strong></p>
+    {% endif %}
+    
+    {% if result_documents %}
+        <div style="margin-top: 20px;">
+            {% for doc in result_documents %}
+    {% set wikipedia_title = 'https://en.wikipedia.org/wiki/' + doc['title']|replace('- Wikipedia', '')|replace(' ', '_')|replace('_$', '') %}
+    <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 20px;">
+        <h3>{{ doc['title'] }}</h3>
+        <p>{{ doc['paragraph'] }}</p>
+        <a class="read-more" href="{{ wikipedia_title }}" target="_blank">{{ wikipedia_title }}</a>
+        <form method="post" action="/feedback" style="text-align:left">
+            <input type="hidden" name="query" value="{{ query }}">
+            <input type="hidden" name="doc_id" value="{{ get_doc_id(term, inverted_index) }}">
+            <input type="hidden" name="feedback"> <!-- Will be filled by user selection in the form -->
+            <label for="feedback">Relevance feedback:</label>
+            <select name="feedback" required>
+                <option value="relevant">Relevant</option>
+                <option value="not_relevant">Not Relevant</option>
+            </select>
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </div>
+{% endfor %}
+
+        </div>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+    
+
+</body>
+</html>
